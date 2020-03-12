@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"os"
 )
 
 /*
@@ -26,6 +29,49 @@ func incrementGenerator() func() int {
 		return x
 	} //定義された変数xはメモリ上で保持され続けるため、この関数を呼び出すたびにreturnされるxの値は1ずつ増える。
 }
+
+// LoggingSettings return
+func LoggingSettings(logFile string) {
+	logfile, _ := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) //RDWR: 読み書き可能, APPEND: 追記可能? 0666はパーミッション
+	/*
+		Goにはファイル読み書きの際のファイルの開き方にいくつか方法がありますよね。
+		os.Create、os.NewFile、os.Open、os.OpenFileです。
+		そのうちOpenFileを使うと、引数にフラグを渡すことで、ファイルを開く際の大まかな設定ができます。
+	*/
+	multilogFile := io.MultiWriter(os.Stdout, logfile)
+	//os.stdout: 画面上に出るエラー
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	log.SetOutput(multilogFile)
+}
+
+func thridPartyConnectDB() {
+	panic("Unable to connect database!")
+}
+
+func save() {
+	defer func() {
+		s := recover()
+		fmt.Println(s)
+	}()
+	thridPartyConnectDB()
+}
+
+func searchMinimumNumber(List []int) (minimumNumber int) {
+	var min int
+	for loopingVar := 0; loopingVar < len(List)-1; loopingVar++ {
+		if List[loopingVar] < List[loopingVar+1] {
+			min = List[loopingVar]
+			List[loopingVar+1] = List[loopingVar]
+		} else {
+			min = List[loopingVar+1]
+		}
+	}
+	minimumNumber = min
+	return minimumNumber
+}
+
+//panic/recover機構という。他の言語のtry/catch機構みたいなもの。
+//くわしい説明は、https://blog.amedama.jp/entry/2015/10/11/123535
 
 /*
 func main() {
